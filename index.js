@@ -38,6 +38,10 @@ module.exports = (hermione, opts = {}) => {
                 options[prop] = options[prop] !== undefined ? options[prop] : globalStyles[prop] || false;
             });
 
+            if (hooks.beforeEach && typeof hooks.beforeEach.call !== 'undefined') {
+                await hooks.beforeEach.call({ browser }, name, selector, options);
+            }
+
             let styleString = '';
 
             options.redrawMode = options.redrawMode || redrawModeDefault;
@@ -62,10 +66,6 @@ module.exports = (hermione, opts = {}) => {
 
             if (options.customCSS) {
                 styleString += options.customCSS;
-            }
-
-            if (hooks.beforeEach && typeof hooks.beforeEach.call !== 'undefined') {
-                await browser.then(() => hooks.beforeEach.call({ browser }, name, selector, options));
             }
 
             await browser.execute(function(styleString, redraw, redrawMode, redrawElements) {
@@ -149,7 +149,7 @@ module.exports = (hermione, opts = {}) => {
             }, options.redraw, options.redrawMode, options.redrawElements);
 
             if (hooks.afterEach && typeof hooks.afterEach.call !== 'undefined') {
-                await browser.then(() => hooks.afterEach.call({ browser }, name, selector, options));
+                await hooks.afterEach.call({ browser }, name, selector, options);
             }
         });
     });
